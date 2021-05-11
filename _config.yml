@@ -42,7 +42,7 @@ navigation:
     url: /tags
 
 # 每页的文章数
-paginate: 8
+paginate: 12
 
 # 文章简介的区分标记
 excerpt_separator: <!-- more -->
@@ -77,10 +77,10 @@ disqus: #shortname
 
 # 输入Gitalk相关设定，即可添加评论区，具体请看教程
 gitalk:
-  clientID: 
-  clientSecret: 
-  repo: 
-  owner: 
+  clientID: 7f1bd1303f249f8dcfb2
+  clientSecret: ca3e2c89714e0b4f37c644198e9441fca13038f5
+  repo: https://github.com/jybjybjyb/J-talk.git
+  owner: jybjybjyb
   proxy:
 
 # 输入Google Analytics web tracking code
