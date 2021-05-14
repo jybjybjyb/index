@@ -1,7 +1,7 @@
 ---
 layout: post
-title: multimodality
-date: 2021-5-11
+title: Multimodality
+date: 2021-5-13
 author: 
 tags: [cv, note]
 comments: true

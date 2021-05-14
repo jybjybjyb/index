@@ -1,7 +1,7 @@
 ---
 layout: post
-title: medicine segmentation
-date: 2021-5-11
+title: Medicine segmentation
+date: 2021-5-10
 author: 
 tags: [cv, note]
 comments: true
