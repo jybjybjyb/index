@@ -9,8 +9,6 @@ toc: true
 pinned: False
 ---
 
-
-[toc]
 <!-- more -->
 
 # 医学图像语义分割

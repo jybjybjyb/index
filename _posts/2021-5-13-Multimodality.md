@@ -11,8 +11,6 @@ pinned: False
 
 <!-- more -->
 
-# 
-# 
 # 多模态深度学习
 
 ![](https://mmbiz.qpic.cn/mmbiz_png/KYSDTmOVZvo1EdSn7KVmTx1gBibXH6D0lr5gvdcY3k8VG7zSA5X5d5ibXPvDgpibMo6A1tHCOkiaV4q605bDCRicMTg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
