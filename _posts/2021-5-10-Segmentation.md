@@ -11,35 +11,100 @@ pinned: False
 
 <!-- more -->
 
-# 医学图像语义分割
+# 分割
 
-## FCN网络
+
+![](https://pic2.zhimg.com/v2-9330a39fb41f28b242070be5ed6bb83d_r.jpg)
+
+
+- 图像分割可以分为两类：语义分割（Semantic Segmentation）和实例分割（Instance Segmentation）
+- 语义分割只是简单地对图像中各个像素点分类
+- 实例分割更进一步，需要区分开不同物体，这更加困难，从一定意义上来说，实例分割更像是语义分割加检测。    
+- CNN 分类模型全连接得最终分类，但是中间的特征图位置信息丢失。
+- 因为我们需要给出图像不同位置的分类概率，特征图过小时会损失位置信息。
+- 然而，下采样必不可少。下采样层对于提升感受野非常重要，这样高层特征语义更丰富，而且对于分割来说较大的感受野也至关重要；另外的一个现实问题，没有下采样层，特征图一直保持原始大小，计算量是非常大的。
+
+## 流派奥义
+
+![](https://pic1.zhimg.com/v2-a7b7d8c875dca06839a669d950aa541c_r.jpg)
+
+- 全卷积网络 FCN，此处有误，FCN第一次提出就有反卷积
+- EncoderDecoder 结构，其中 Encoder 就是下采样模块，负责特征提取，而 Decoder 是上采样模块（通过插值，转置卷积等方式），负责恢复特征图大小，一般两个模块是对称的，经典的网络如 U-Net
+- DilatedFCN，主要是通过空洞卷积（Atrous Convolution）来减少下采样率但是又可以保证感受野，如DeepLab
+
+### DeepLab
+
+![](https://pic1.zhimg.com/v2-9949c7916b7d8fcf2b6a99e22f416c28_r.jpg)
+
+- Encoder 的主体是带有空洞卷积的 DCNN，可以采用常用的分类网络如 ResNet
+- 金字塔池化模块（Atrous Spatial Pyramid Pooling, ASPP)，引入多尺度信息
+- v3 + 引入了 Decoder 模块，其将底层特征与高层特征进一步融合，提升分割边界准确度
+
+#### DilatedFCN
+
+![](https://pic1.zhimg.com/v2-2fd4385e4698bdf45134148fe88e1edc_r.jpg)
+
+
+- 修改分类网络的后面 block，用空洞卷积来替换 stride=2 的下采样层
+- 加上 ASPP 结构
+
+
+
+#### 空间金字塔池化（ASPP）
+
+![](https://pic2.zhimg.com/v2-bfa712ca4922174106c72153d9de2d2d_r.jpg)
+
+ASPP 模块主要包含以下几个部分： 
+1. 一个 1×1 卷积层，以及三个 3x3 的空洞卷积，对于 output_stride=16，其 rate 为 (6, 12, 18) ，若 output_stride=8，rate 加倍（这些卷积层的输出 channel 数均为 256，并且含有 BN 层）；
+1. 一个全局平均池化层得到 image-level 特征，然后送入 1x1 卷积层（输出 256 个 channel），并双线性插值到原始大小
+1. 将（1）和（2）得到的 4 个不同尺度的特征在 channel 维度 concat 在一起，然后送入 1x1 的卷积进行融合并得到 256-channel 的新特征。
+
+#### Decoder
+
+![](https://pic2.zhimg.com/v2-fa76d61cfeeab3302a330663cc420639_r.jpg)
+
+1. 首先将 encoder 得到的特征双线性插值得到 4x 的特征，然后与 encoder 中对应大小的低级特征 concat，如 ResNet 中的 Conv2 层
+1. 由于 encoder 得到的特征数只有 256，而低级特征维度可能会很高，为了防止 encoder 得到的高级特征被弱化，先采用 1x1 卷积对低级特征进行降维（paper 中输出维度为 48）。
+1. 两个特征 concat 后，再采用 3x3 卷积进一步融合特征，最后再双线性插值得到与原始图片相同大小的分割预测。
+
+#### 空洞卷积（Atrous Convolution）
+
+![](https://pic4.zhimg.com/v2-debbe96d9a61bdd07d31e10b6bc4a077_r.jpg)
+
+- 在不改变特征图大小的同时控制感受野，这有利于提取多尺度信息
+- rate（r）控制着感受野的大小，r 越大感受野越大。通常的 CNN 分类网络的 output_stride=32，若希望 DilatedFCN 的 output_stride=16，只需要将最后一个下采样层的 stride 设置为 1，并且后面所有卷积层的 r 设置为 2，这样保证感受野没有发生变化
+
+
+
+
+
+### 全卷积网络 FCN
+
 
 ![](https://pic1.zhimg.com/v2-8922c306fba615f26f2b891dae12d808_r.jpg)
 
 
 ![](https://pic4.zhimg.com/v2-19f47f55b9f1e2779b8cbcdef25d10d7_r.jpg)
 
-此前的基于神经网络的图像语义分割网络是利用以待分类像素点为中心的图像块来预测中心像素的标签，一般用CNN+FC的策略构建网络，显然这种方式无法利用图像的全局上下文信息，而且逐像素推理速度很低；
 
-而FCN网络舍弃全连接层FC，全部用卷积层构建网络，通过转置卷积以及不同层特征融合的策略，使得网络输出直接是输入图像的预测mask，效率和精度得到大幅度提升。
+- 早期的方法是直接把分类网络用来对图像中的所有像素进行单独的分类，通过“滑窗”的方法获得整个图像的分割结果。一般用CNN+FC的策略构建网络，显然这种方式无法利用图像的全局上下文信息，而且逐像素推理速度很低；
 
+- Long 等人[34]提出了全卷积网络（fully convolutional network, FCN）
+
+- 在分类网络的末尾一般使用全连接层，全连接层的输入特征的大小是固定的，并且全连接层使特征完全丢失了原来的空间信息。
+
+- 将全连接层替换成一般的卷积层使网络能够输出 2D 空间热图（heatmap），实现端对端的训练和预测。
+
+
+特点：
 1. 全卷积网络（不含fc层）
-1. 转置卷积deconv（反卷积）
+1. 转置卷积==deconv==（反卷积）
 1. 不同层特征图跳跃连接（相加）
 
 
-## SegNet
-
-![](https://pic4.zhimg.com/v2-e51555742cb704ad7db664ed3cc168f3_b.jpg)
-
-1. FCN通过将特征图deconv得到的结果与**Encoder**对应大小的特征图相加得到上采样结果
-1. 而SegNet用Encoder部分maxpool的索引进行Decoder部分的上采样
 
 
-
-
-## UNet
+### UNet
 
 
 
@@ -54,12 +119,12 @@ pinned: False
 **unet 可以2D 或者 3D卷积**
 
 
-### 2D unet
+#### 2D unet
 
 
 ![2dunet](https://pic3.zhimg.com/80/v2-cf0ead284f68d91a42cd3908cf793956_1440w.jpg)
 
-### 3D unet
+#### 3D unet
 
 两次卷积 + BN
 ```
@@ -94,20 +159,12 @@ nn.ConvTranspose3d(in_channels, in_channels, 2, stride=2)
 1. 下采样使用stride为2的卷积实现，上采样使用transposed convolution实现。
 1. 上采样路中，除了最底下的两层外，都会有deep supervision。
 
-#### Patch Size and Batch Size
-
-在三维医学图像的处理中，显存不足是经常容易遇到的问题。而训练过程中，显存占用与模型的输入patch size，batch size以及网络的结构相关。然而，patch size越大，所需要的模型越大。因此，在抉择时，主要在patch size与batch size之间进行权衡。nnUNet中优先考虑patch size，保证模型能基于更多的信息来进行推理。但batch size最小值应该为2，需要保证训练过程中优化过程的鲁棒性。最后，在保证patch size的前提下，如果显存有多余的，再对应增加batch size。因为batch size大部分情况都比较小，所以之前固定设计中没有用BN而使用Instance Norm。
-
-而最优patch size的决定，采用迭代的方式进行。将batch size先固定为2，然后设定一个较大的patch size初始值，再根据当前patch size来设计网络结构。之后根据显存占用情况，不断的迭代调整patch size。
-
-#### target spacing
-
-target spacing指的是数据集在经过重采样之后，每张图像所具有的相同的spacing值，即每张图像的每个体素所代表的实际物理空间大小。
 
 
 
 
-## VNet
+
+### VNet
 
 1. 与U-Net类似，不同在于该架构增加了跳跃连接，并
 1. 用3D操作物替换了2D操作以处理3D图像（volumetric image）。 并且
@@ -117,7 +174,22 @@ target spacing指的是数据集在经过重采样之后，每张图像所具有
 
 ![](https://pic2.zhimg.com/v2-20cd291def56efd5d634c283389ec805_r.jpg)
 
-## FC-DenseNet (百层提拉米苏网络)
+
+
+### VoxResNet
+
+
+
+### SegNet
+
+![](https://pic4.zhimg.com/v2-e51555742cb704ad7db664ed3cc168f3_b.jpg)
+
+1. FCN通过将特征图deconv得到的结果与**Encoder**对应大小的特征图相加得到上采样结果
+1. 而SegNet用Encoder部分maxpool的索引进行Decoder部分的上采样
+
+
+
+### FC-DenseNet (百层提拉米苏网络)
 
 1. 该网络最简单的版本是由向下过渡的两个下采样路径和向上过渡的两个上采样路径组成。
 1. 包含两个水平跳跃连接，将来自下采样路径的特征图与上采样路径中的相应特征图拼接在一起。
@@ -126,4 +198,14 @@ target spacing指的是数据集在经过重采样之后，每张图像所具有
 
 ![](https://pic3.zhimg.com/v2-ab666adaef42c9c27bad749d0d5b38a2_r.jpg)
 
-## 未完待续
+## 评价标准
+
+### Dice
+
+- Dice值可以综合的衡量预测值和真实值之间的重叠率
+ 
+### Haus
+- 豪斯多夫距离（Hausdorff distance，记为 Haus）作为辅助评判标准，Haus 是度量空间中任意两个集合之间的一种距离，可以用来描述两个点集之间的相似度。
+
+- 因为假阳性小区域会对 Haus 产生较大的影响，所以在分割任务中经常使用 Haus95 而非 Haus 距离， Haus95 是预测结果和真值标签之间的距离的 95% 分位数，在此任务中 Haus95比 Haus 更具参考价值。
+
