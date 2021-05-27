@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Medicine segmentation
+title: Segmentation
 date: 2021-5-10
 author: 
 tags: [cv, note]
@@ -209,3 +209,6 @@ nn.ConvTranspose3d(in_channels, in_channels, 2, stride=2)
 
 - 因为假阳性小区域会对 Haus 产生较大的影响，所以在分割任务中经常使用 Haus95 而非 Haus 距离， Haus95 是预测结果和真值标签之间的距离的 95% 分位数，在此任务中 Haus95比 Haus 更具参考价值。
 
+
+
+$ s $
