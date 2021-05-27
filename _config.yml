@@ -78,8 +78,8 @@ disqus: #shortname
 # 输入Gitalk相关设定，即可添加评论区，具体请看教程
 gitalk:
   clientID: 7f1bd1303f249f8dcfb2
-  clientSecret: ca3e2c89714e0b4f37c644198e9441fca13038f5
-  repo: J-talk
+  clientSecret: 62ccf958ff803d376c68f9b6e48151e6964dc616
+  repo: J-talk.git
   owner: jybjybjyb
   proxy:
 
