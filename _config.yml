@@ -79,7 +79,7 @@ disqus: #shortname
 gitalk:
   clientID: 7f1bd1303f249f8dcfb2
   clientSecret: 62ccf958ff803d376c68f9b6e48151e6964dc616
-  repo: J-talk.git
+  repo: J-talk
   owner: jybjybjyb
   proxy:
 
