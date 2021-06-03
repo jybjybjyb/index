@@ -1,6 +1,6 @@
 ---
 layout: post
-title: MedCV
+title: paper note
 date: 2021-5-13
 author: 
 tags: [paper, note]
@@ -12,7 +12,7 @@ pinned: False
 <!-- more -->
 
 
-# 超声
+# 硕士
 
 ## （哈工大）MR与TRUS图像辅助前列腺穿刺技术研究_王炜荣
 
@@ -54,3 +54,15 @@ pinned: False
 ## （华南理工）基于卷积神经网络图像分割的脊柱三维超声自动扫描系统研究_刘宇波
 
 - 以医学超声仪器 Sonix RP、六自由度机器人、深度摄像仪 Kinect、工控计算机为基础搭建了一套脊柱三维超声自动扫描系统，在机械自动控制程序中嵌入改进的脊柱扫描路径规划算法
+
+
+
+# paper
+
+## （MICCAI 2019）Overfitting of neural nets under class imbalance: Analysis and improvements for segmentation
+
+- 当有足够大以及代表性的数据时，CNN在分割任务中效果很好，但是当仅有少量训练数据时，会有overfitting问题，导致泛化能力很差。本文认为类别不平衡和过拟合之间的联系还没有得到充分的研究。
+- 测试集under-represented类别样本的预测值趋向于在decision boundary，而ver-represented类别样本remains stable。已有的方法主要致力于让不同的类别尽可能分开，而没有处理imbalance。本文对损失函数做asymmetric modefications来缓解mbalance。
+- 分析网络最后一层activations的分布 随着训练数据减少的变化。
+- 意外： Dice loss性能比CE差至少3个点，这挺意外的。在class imbalanced分割任务中，CE和Dice孰优孰劣还是一个争议性的问题，当然也跟每个作者自己的code实现有很大关系。增加训练数据边际效用递减。从5%-10%，增加了5%的数据量，性能增加了10个点左右；从10%-20%，增加了10%的数据量，性能增加了2个点左右；而从20%-50%，增加了30%的数据量，大部分实验性能只有1个点左右提升。Focal loss在5%-20%训练数据时，性能比CE好，但在50%训练数据时，比CE低三个点。
+

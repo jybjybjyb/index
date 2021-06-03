@@ -11,7 +11,7 @@ pinned: False
 
 <!-- more -->
 
-# 分割
+# 图像分割
 
 
 ![](https://pic2.zhimg.com/v2-9330a39fb41f28b242070be5ed6bb83d_r.jpg)
@@ -166,9 +166,11 @@ nn.ConvTranspose3d(in_channels, in_channels, 2, stride=2)
 
 ### VNet
 
-1. 与U-Net类似，不同在于该架构增加了跳跃连接，并
+1. 与U-Net类似，不同在于该架构增加了跳跃连接
 1. 用3D操作物替换了2D操作以处理3D图像（volumetric image）。 并且
 1. 针对广泛使用的细分指标进行优化 Dice Loss。
+1. 添加了残差连接结构
+1. 首次将医学影像分割的性能评价指标 Dice 系数（Dice coefficient），转换为神经网络的损失函数，Dice 系数在二分类问题上可视为准确率与召回率的调和平均
 
 ![3dvnet](https://pic1.zhimg.com/80/v2-0ff38da4316fcb48db94f7bc95d27ed4_1440w.jpg)
 
