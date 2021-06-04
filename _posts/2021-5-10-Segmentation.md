@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Segmentation
+title: 分割综述
 date: 2021-5-10
 author: 
 tags: [cv, note]

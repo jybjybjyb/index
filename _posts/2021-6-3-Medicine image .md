@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Medicine
+title: 医学图像处理
 date: 2021-6-3
 author: 
 tags: [cv, note]

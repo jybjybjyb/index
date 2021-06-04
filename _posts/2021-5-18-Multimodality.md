@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Multimodality
+title: 多模态综述
 date: 2021-5-13
 author: 
 tags: [cv, note]
